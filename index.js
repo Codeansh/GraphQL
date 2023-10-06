@@ -10,16 +10,16 @@ import { typeDefs } from './schema.js';
 const resolvers = {
 
   Query: {
-    games() { 
+    games() {
       return db.games;
     },
-    authors() { 
+    authors() {
       return db.authors;
     },
-    reviews() { 
+    reviews() {
       return db.reviews;
     },
-    review(_, args) { 
+    review(_, args) {
       return db.reviews.find((review) => review.id === args.id);
     },
     author(_, args) {
@@ -30,22 +30,47 @@ const resolvers = {
     }
   },
   Game: {
-    reviews(parent) { 
+    reviews(parent) {
       return db.reviews.filter((r) => r.game_id === parent.id)
     }
   },
   Author: {
-    reviews(parent) { 
+    reviews(parent) {
       return db.reviews.filter((r) => r.author_id === parent.id)
     }
   },
   Review: {
-    game(parent) { 
+    game(parent) {
       return db.games.find((g) => g.id === parent.game_id);
     },
-    author(parent) { 
+    author(parent) {
       return db.authors.find((a) => a.id === parent.author_id)
     }
+  },
+  Mutation: {
+  
+    deleteGame(_, args) { 
+      db.games = db.games.filter((g) => g.id !== args.id)
+      return db.games
+    },
+    addGame(_, args) { 
+      let game = {
+        ...args.game,
+        id: Math.floor(Math.random() * 10000).toString()
+      }
+      db.games.push(game)
+      return game
+    },
+    updateGame(_, args) {
+      db.games = db.games.map((g) => { 
+        if (g.id === args.id) {
+          return { ...g, ...args.edits}
+        }
+        return g
+      })
+      return db.games.find((g) => g.id === args.id)
+     }
+
   }
   
 
